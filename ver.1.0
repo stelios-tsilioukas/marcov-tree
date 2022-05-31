@@ -1,0 +1,88 @@
+!pip install anytree
+!pip install graphviz
+!apt-get install python-numpy python-qt4 python-lxml python-six
+
+
+from anytree import Node, RenderTree
+from anytree.exporter import DotExporter
+
+
+
+tr=(1,5,2)
+root=Node(tr)
+
+def LVieta(mv):
+  
+  nv0=mv[0]
+  nv1=3*mv[0]*mv[1]-mv[2]
+  nv2=mv[1]
+  nv=(nv0,nv1,nv2)
+  return (nv)
+
+  
+def RVieta(mv):
+  
+  nv0=mv[1]
+  nv1=3*mv[1]*mv[2]-mv[0]
+  nv2=mv[2]
+  nv=(nv0,nv1,nv2)
+  return (nv)
+
+
+
+
+#####################
+# first level
+#####################
+level_child_= {}
+
+
+
+level_child_[1,1] = Node(LVieta(root.name), parent=root)
+
+
+
+level_child_[1,2] = Node(RVieta(root.name), parent=root)
+
+
+##############################
+# marcov tree up to n level
+###############################
+
+nmarcov=6
+
+for j in range(2,nmarcov-1):
+     
+    print(j)
+    for i in range(1,2**(j-1)+1):
+  
+       level_child_[j,2*i-1] = Node(LVieta(level_child_[j-1,i].name), parent = level_child_[j-1,i])
+       #print('[j,2*i-1]=',j,2*i-1)
+       level_child_[j,2*i] = Node(RVieta(level_child_[j-1,i].name), parent = level_child_[j-1,i])
+       #print('[j,2*i]=',j,2*i)
+
+
+###########################################
+# define a marcov subtree builder function
+############################################
+
+def marc_sub_tree(mv):
+  
+  nv0=mv[0]
+  nv1=3*mv[0]*mv[1]-mv[2]
+  nv2=mv[1]
+  nv=(nv0,nv1,nv2)
+  return (nv)
+
+
+
+
+
+
+
+for pre, fill, node in RenderTree(root):
+    print("%s%s" % (pre, node.name))
+
+
+DotExporter(root).to_picture("tree.png")
+
